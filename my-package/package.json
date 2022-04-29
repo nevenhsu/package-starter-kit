@@ -1,0 +1,65 @@
+{
+  "name": "my-package",
+  "version": "1.0.0",
+  "description": "",
+  "author": "",
+  "private": true,
+  "license": "MIT",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "unpkg": "dist/umd/index.umd.js",
+  "types": "dist/types/index.d.ts",
+  "typings": "dist/types/index.d.ts",
+  "sideEffects": false,
+  "devEngines": {
+    "node": "^12.17.0 || 13.x || 14.x || 15.x || 16.x"
+  },
+  "engines": {
+    "node": ">=10"
+  },
+  "scripts": {
+    "prebuild": "rimraf dist",
+    "build:esm": "tsc -m esNext --outDir dist/esm",
+    "build:cjs": "tsc -m commonjs --outDir dist/cjs",
+    "build:umd": "rollup -c rollup.config.ts --configPlugin typescript",
+    "build:types": "rollup -c dts.rollup.config.ts",
+    "build": "npm run build:esm && npm run build:cjs && npm run build:umd && npm run build:types"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "@babel/cli": "7.17.6",
+    "@babel/core": "7.17.9",
+    "@babel/plugin-external-helpers": "7.16.7",
+    "@babel/plugin-proposal-export-default-from": "7.16.7",
+    "@babel/preset-env": "7.16.11",
+    "@babel/preset-react": "7.16.7",
+    "@rollup/plugin-babel": "^5.2.1",
+    "@rollup/plugin-commonjs": "^18.1.0",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-multi-entry": "^4.0.0",
+    "@rollup/plugin-node-resolve": "^11.2.1",
+    "@rollup/plugin-replace": "^4.0.0",
+    "@rollup/plugin-typescript": "^8.3.0",
+    "eslint": "^8.14.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-better-styled-components": "^1.1.2",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-react": "^7.29.4",
+    "eslint-plugin-react-hooks": "^4.5.0",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
+    "eslint-plugin-unused-imports": "^2.0.0",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.33.3",
+    "rollup-plugin-dts": "^2.0.0",
+    "rollup-plugin-esbuild": "^4.0.1",
+    "rollup-plugin-sourcemaps": "^0.6.3",
+    "rollup-plugin-terser": "^7.0.2",
+    "rollup-plugin-typescript2": "^0.31.0",
+    "typescript": "^4.6.3"
+  },
+  "peerDependencies": {},
+  "keywords": [
+    ""
+  ]
+}

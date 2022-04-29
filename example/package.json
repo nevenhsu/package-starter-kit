@@ -1,0 +1,6 @@
+{
+  "type": "module",
+  "devDependencies": {
+    "typescript": "^4.6.4"
+  }
+}
