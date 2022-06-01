@@ -1,30 +1,12 @@
 {
   "presets": [
-    "@babel/preset-typescript",
-    "@babel/preset-react",
+    ["@babel/env", { "modules": false }],
+    "@babel/typescript",
     [
-      "@babel/preset-env",
+      "@babel/preset-react",
       {
-        "targets": {
-          "browsers": [
-            "> 1%",
-            "Chrome >= 48",
-            "Firefox >= 44",
-            "Firefox ESR",
-            "Safari >= 9.1",
-            "Edge >= 12",
-            "ios_saf >= 9.3",
-            "ie 11"
-          ]
-        },
-        "modules": false,
-        "forceAllTransforms": true
+        "runtime": "automatic"
       }
     ]
-  ],
-  "plugins": [
-    "@babel/plugin-transform-runtime",
-    "@babel/proposal-class-properties",
-    "@babel/proposal-object-rest-spread"
   ]
 }

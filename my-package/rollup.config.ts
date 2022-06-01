@@ -1,59 +1,98 @@
+import { defineConfig } from 'rollup'
 import nodeResolve from '@rollup/plugin-node-resolve'
-import replace from '@rollup/plugin-replace'
 import commonjs from '@rollup/plugin-commonjs'
 import babel from '@rollup/plugin-babel'
 import json from '@rollup/plugin-json'
-import typescript2 from 'rollup-plugin-typescript2'
-import { terser } from 'rollup-plugin-terser'
+import image from '@rollup/plugin-image'
+import strip from '@rollup/plugin-strip'
+import typescript from 'rollup-plugin-typescript2'
 import sourceMaps from 'rollup-plugin-sourcemaps'
+import { terser } from 'rollup-plugin-terser'
+
 import pkg from './package.json'
 
-const commonPlugins = [
-  nodeResolve(),
-  typescript2({
-    tsconfigOverride: { compilerOptions: { module: 'es2015' } },
-  }),
-  sourceMaps(),
-  json(),
-  babel({
-    exclude: ['node_modules/**'],
-    plugins: ['@babel/plugin-external-helpers'],
-  }),
-  commonjs({
-    ignoreGlobal: true,
-  }),
-  replace({
-    __VERSION__: JSON.stringify(pkg.version),
-  }),
-]
+const name = 'bundle'
+const input = 'src/index.ts'
+const extensions = ['.js', '.jsx', '.ts', '.tsx']
+const noDeclarationFiles = { compilerOptions: { declaration: false } }
 
-const prodPlugins = [terser()]
+const babelRuntimeVersion = pkg.dependencies['@babel/runtime'].replace(/^[^0-9]*/, '')
 
-const globals = { react: 'React', 'react-dom': 'ReactDOM' }
+const peerDependencies = Object.keys(pkg.peerDependencies || {})
+const external = [...Object.keys(pkg.devDependencies || {}), ...peerDependencies].map((name) => RegExp(`^${name}($|/)`))
 
-const config = {
-  input: './src/index.ts',
-
-  // \0 is rollup convention for generated in memory modules
-  external: Object.keys(globals),
-  plugins: commonPlugins,
-  output: [
-    {
-      file: 'dist/umd/index.js',
-      format: 'umd',
-      globals,
-      name: 'index',
-      sourcemap: true,
-    },
-    {
-      file: 'dist/umd/index.min.js',
-      format: 'umd',
-      globals,
-      name: 'index',
-      sourcemap: true,
-      plugins: prodPlugins,
-    },
-  ],
+const resolveOptions = {
+  extensions,
+  mainFields: ['browser', 'module', 'main'],
+  dedupe: peerDependencies,
 }
 
-export default config
+const commonPlugins = [image(), json(), sourceMaps(), strip()]
+
+export default defineConfig([
+  // ES
+  {
+    input,
+    output: { dir: 'dist/esm', preserveModules: true, format: 'es', indent: false, sourcemap: true },
+    external,
+    plugins: [
+      nodeResolve(resolveOptions),
+      commonjs({
+        ignoreGlobal: true,
+      }),
+      typescript({ tsconfigOverride: noDeclarationFiles }),
+      ...commonPlugins,
+      babel({
+        extensions,
+        plugins: [['@babel/plugin-transform-runtime', { version: babelRuntimeVersion, useESModules: true }]],
+        babelHelpers: 'runtime',
+        exclude: /node_modules/,
+      }),
+    ],
+  },
+
+  // CommonJS
+  {
+    input,
+    output: { dir: 'dist/cjs', preserveModules: true, format: 'cjs', indent: false, sourcemap: true },
+    external,
+    plugins: [
+      nodeResolve(resolveOptions),
+      commonjs({
+        ignoreGlobal: true,
+      }),
+      typescript({ useTsconfigDeclarationDir: true }),
+      ...commonPlugins,
+      babel({
+        extensions,
+        plugins: [['@babel/plugin-transform-runtime', { version: babelRuntimeVersion }]],
+        babelHelpers: 'runtime',
+        exclude: /node_modules/,
+      }),
+    ],
+  },
+
+  // UMD Development
+  {
+    input,
+    output: { name, file: pkg.unpkg, format: 'umd', indent: false, sourcemap: true },
+    plugins: [
+      nodeResolve({
+        ...resolveOptions,
+        browser: true,
+        preferBuiltins: true,
+      }),
+      commonjs({
+        ignoreGlobal: true,
+      }),
+      typescript({ tsconfigOverride: noDeclarationFiles }),
+      ...commonPlugins,
+      babel({
+        extensions,
+        babelHelpers: 'bundled',
+        exclude: /node_modules/,
+      }),
+      terser(),
+    ],
+  },
+])
