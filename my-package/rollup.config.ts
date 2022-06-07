@@ -6,7 +6,6 @@ import json from '@rollup/plugin-json'
 import image from '@rollup/plugin-image'
 import strip from '@rollup/plugin-strip'
 import typescript from 'rollup-plugin-typescript2'
-import sourceMaps from 'rollup-plugin-sourcemaps'
 import { terser } from 'rollup-plugin-terser'
 
 import pkg from './package.json'
@@ -27,13 +26,13 @@ const resolveOptions = {
   dedupe: peerDependencies,
 }
 
-const commonPlugins = [image(), json(), sourceMaps(), strip()]
+const commonPlugins = [image(), json(), strip()]
 
 export default defineConfig([
   // ES
   {
     input,
-    output: { dir: 'dist/esm', preserveModules: true, format: 'es', indent: false, sourcemap: true },
+    output: { dir: 'dist/esm', preserveModules: true, format: 'es', indent: false },
     external,
     plugins: [
       nodeResolve(resolveOptions),
@@ -54,7 +53,7 @@ export default defineConfig([
   // CommonJS
   {
     input,
-    output: { dir: 'dist/cjs', preserveModules: true, format: 'cjs', indent: false, sourcemap: true },
+    output: { dir: 'dist/cjs', preserveModules: true, format: 'cjs', indent: false },
     external,
     plugins: [
       nodeResolve(resolveOptions),
@@ -75,7 +74,7 @@ export default defineConfig([
   // UMD Development
   {
     input,
-    output: { name, file: pkg.unpkg, format: 'umd', indent: false, sourcemap: true },
+    output: { name, file: pkg.unpkg, format: 'umd', indent: false },
     plugins: [
       nodeResolve({
         ...resolveOptions,
